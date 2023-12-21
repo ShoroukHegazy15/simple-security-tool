@@ -26,7 +26,7 @@ def generate_signature_and_certificate(file_path, private_key):
     certificate_content = original_content + signature
 
     # Save as a certificate file
-    with open("certificate_file.cert",'wb') as file:
+    with open("certificatesigned.cert",'wb') as file:
         file.write(certificate_content)
     # with open(certificate_file_path, "wb") as certificate_file:
     #     certificate_file.write()
@@ -48,7 +48,7 @@ def verify_certificate(private_key, public_key, certificate_file_path):
         print("Signature verification successful!")
 
         # Save the verified content to a new file
-        with open("verified_file.txt",'wb') as file:
+        with open("verified.txt",'wb') as file:
             file.write(received_content)
         
     except (ValueError, TypeError):

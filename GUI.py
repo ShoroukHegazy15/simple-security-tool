@@ -7,10 +7,12 @@ import binascii
 from cryptography.hazmat.primitives import hashes
 import AES
 import certificate
+import part3
 
 
 
 private_key, public_key = certificate.key_generation()
+
 
 class EncryptionApp:
     def __init__(self, master):
@@ -31,7 +33,7 @@ class EncryptionApp:
         self.encryption_method_label.grid(row=1, column=0, sticky='w')
 
         # Dropdown menu for encryption method
-        self.encryption_methods = ["AES", "RSA"]
+        self.encryption_methods = ["AES", "RSA", "Con and Auth"]
         self.selected_encryption_method = tk.StringVar()
         self.selected_encryption_method.set("Encryption Method")  # Default placeholder text
         self.encryption_method_menu = tk.OptionMenu(master, self.selected_encryption_method, *self.encryption_methods, command=self.update_components)
@@ -53,13 +55,22 @@ class EncryptionApp:
         self.decrypt_button.grid(row=3, column=2, pady=5, padx=10, sticky='w')
         self.decrypt_button.grid_forget()  # Initially hide the decrypt button
 
-        self.encrypt_sign_button = tk.Button(master, text="Generate Signature", command=self.encrypt_sign_file)
+        self.sign_button = tk.Button(master, text="Generate Signature", command=self.sign_file)
+        self.sign_button.grid(row=3, column=1, pady=5, padx=10, sticky='w')
+        self.sign_button.grid_forget()  # Initially hide the encrypt sign button
+
+        self.verify_button = tk.Button(master, text="Verify Certificate", command=self.verify_file)
+        self.verify_button.grid(row=3, column=2, pady=5, padx=10, sticky='w')
+        self.verify_button.grid_forget()  # Initially hide the decrypt verify button
+
+        self.encrypt_sign_button = tk.Button(master, text="Encrypt + Sign", command=self.encrypt_sign_file)
         self.encrypt_sign_button.grid(row=3, column=1, pady=5, padx=10, sticky='w')
         self.encrypt_sign_button.grid_forget()  # Initially hide the encrypt sign button
 
-        self.decrypt_verify_button = tk.Button(master, text="Verify Certificate", command=self.decrypt_verify_file)
+        self.decrypt_verify_button = tk.Button(master, text="Decrypt + Verify", command=self.decrypt_verify_file)
         self.decrypt_verify_button.grid(row=3, column=2, pady=5, padx=10, sticky='w')
         self.decrypt_verify_button.grid_forget()  # Initially hide the decrypt verify button
+        
 
     def update_components(self, *args):
         # Function to update components based on the selected encryption method
@@ -70,6 +81,8 @@ class EncryptionApp:
         self.key_entry.grid_forget()
         self.encrypt_button.grid_forget()
         self.decrypt_button.grid_forget()
+        self.sign_button.grid_forget()
+        self.verify_button.grid_forget()
         self.encrypt_sign_button.grid_forget()
         self.decrypt_verify_button.grid_forget()
 
@@ -80,6 +93,11 @@ class EncryptionApp:
             self.encrypt_button.grid(row=3, column=1, pady=5, padx=10, sticky='w')
             self.decrypt_button.grid(row=3, column=2, pady=5, padx=10, sticky='w')
         elif encryption_method == "RSA":
+            self.sign_button.grid(row=3, column=1, pady=5, padx=10, sticky='w')
+            self.verify_button.grid(row=3, column=2, pady=5, padx=10, sticky='w')
+        elif encryption_method == "Con and Auth":
+            self.key_label.grid(row=2, column=0, sticky='w')
+            self.key_entry.grid(row=2, column=1, columnspan=2, pady=5, padx=10, sticky='w')
             self.encrypt_sign_button.grid(row=3, column=1, pady=5, padx=10, sticky='w')
             self.decrypt_verify_button.grid(row=3, column=2, pady=5, padx=10, sticky='w')
 
@@ -112,7 +130,6 @@ class EncryptionApp:
         return hex_key
 
 
-
     def encrypt_file(self):
         file_path = self.file_path_entry.get()
         key = self.get_key()
@@ -123,13 +140,23 @@ class EncryptionApp:
         key = self.get_key()
         AES.decrypt_file(file_path, key)
 
-    def encrypt_sign_file(self):
+    def sign_file(self):
         file_path = self.file_path_entry.get()
         certificate.generate_signature_and_certificate(file_path, private_key)
 
-    def decrypt_verify_file(self):
+    def verify_file(self):
         file_path = self.file_path_entry.get()
         certificate.verify_certificate(private_key, public_key, file_path)
+
+    def encrypt_sign_file(self):
+        file_path = self.file_path_entry.get()
+        key = self.get_key()
+        part3.encrypt_file(file_path , key, private_key)
+
+    def decrypt_verify_file(self):
+        file_path = self.file_path_entry.get()
+        key = self.get_key()
+        part3.verify_certificate(private_key, public_key, file_path, key)
 
 
 if __name__ == "__main__":

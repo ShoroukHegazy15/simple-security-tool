@@ -39,7 +39,7 @@ def decrypt_file(path, key):
     cypher = AESCipher(key)
     decrypted = binascii.unhexlify(cypher.decrypt(hex_representation)).decode('utf-8')
 
-    with open("originaldecrypted.txt", 'w') as file:
+    with open("decrypted.txt", 'w') as file:
         file.write(decrypted)
 
     return decrypted
